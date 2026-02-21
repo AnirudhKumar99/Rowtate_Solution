@@ -38,9 +38,58 @@ vector<string> get_all_moves() {
 string get_inverse(const string &move) {
   char type = move[0];
   char index = move[1];
+
+  int shift = 0;
+  char sign = move[2];
+  if (sign == '+') {
+    shift = move[3] - '0';
+  } else if (sign == '-') {
+    shift = -(move[3] - '0');
+  }
+
+  // To invert a move, simply negate its shift
+  int inv_shift = -shift;
+
+  string res_sign = inv_shift > 0 ? "+" : "-";
+  return string(1, type) + index + res_sign + to_string(abs(inv_shift));
+}
+
+// Helper to normalize the move string so that +3 becomes -2, +4 becomes -1 for
+// display
+string normalize_move_display(const string &move) {
+  char type = move[0];
+  char index = move[1];
   int shift = move[3] - '0';
-  int inv_shift = 5 - shift; // e.g., shift of 1 is inverted by a shift of 4
-  return string(1, type) + index + "+" + to_string(inv_shift);
+  if (move[2] == '-')
+    shift = -shift;
+
+  // Convert positive shifts > 2 to equivalent negative shifts
+  // e.g. a shift of +4 is equal to -1
+  // e.g. a shift of +3 is equal to -2
+  // Modulo math to get it into the range [-2, 2]
+  int norm_shift = shift % 5;
+  if (norm_shift > 2)
+    norm_shift -= 5;
+  if (norm_shift < -2)
+    norm_shift += 5;
+
+  string sign = norm_shift > 0 ? "+" : "-";
+  return string(1, type) + index + sign + to_string(abs(norm_shift));
+}
+
+// Helper to compute actual cost of a move
+int get_move_cost(const string &move) {
+  int shift = move[3] - '0';
+  if (move[2] == '-')
+    shift = -shift;
+
+  int norm_shift = shift % 5;
+  if (norm_shift > 2)
+    norm_shift -= 5;
+  if (norm_shift < -2)
+    norm_shift += 5;
+
+  return std::abs(norm_shift);
 }
 
 void print_grid(const string &state) {

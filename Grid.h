@@ -13,6 +13,12 @@ std::vector<std::string> get_all_moves();
 // Gets the inverse move for path reconstruction
 std::string get_inverse(const std::string &move);
 
+// Normalizes the move string so that +3 becomes -2, +4 becomes -1 for display
+std::string normalize_move_display(const std::string &move);
+
+// Helper to compute actual cost of a move
+int get_move_cost(const std::string &move);
+
 // Pretty prints the 5x5 grid to standard output
 void print_grid(const std::string &state);
 

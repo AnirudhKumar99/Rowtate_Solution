@@ -60,18 +60,21 @@ SolutionPath solve_puzzle(const string &start_state,
 
           // If intersection is found during forward propagation...
           if (b_visited.count(next_state)) {
-            int path_len = curr_dist + 1 + b_visited[next_state].dist;
+            int path_len =
+                curr_dist + get_move_cost(move) + b_visited[next_state].dist;
             if (path_len < best_path_len) {
               best_path_len = path_len;
               best_intersection = next_state;
             }
             if (!f_visited.count(next_state))
-              f_visited[next_state] = {curr, move, curr_dist + 1};
+              f_visited[next_state] = {curr, move,
+                                       curr_dist + get_move_cost(move)};
             found = true;
           }
 
           if (!f_visited.count(next_state)) {
-            f_visited[next_state] = {curr, move, curr_dist + 1};
+            f_visited[next_state] = {curr, move,
+                                     curr_dist + get_move_cost(move)};
             f_q.push(next_state);
           }
         }
@@ -89,18 +92,21 @@ SolutionPath solve_puzzle(const string &start_state,
 
           // If intersection is found during backward propagation...
           if (f_visited.count(next_state)) {
-            int path_len = curr_dist + 1 + f_visited[next_state].dist;
+            int path_len =
+                curr_dist + get_move_cost(move) + f_visited[next_state].dist;
             if (path_len < best_path_len) {
               best_path_len = path_len;
               best_intersection = next_state;
             }
             if (!b_visited.count(next_state))
-              b_visited[next_state] = {curr, move, curr_dist + 1};
+              b_visited[next_state] = {curr, move,
+                                       curr_dist + get_move_cost(move)};
             found = true;
           }
 
           if (!b_visited.count(next_state)) {
-            b_visited[next_state] = {curr, move, curr_dist + 1};
+            b_visited[next_state] = {curr, move,
+                                     curr_dist + get_move_cost(move)};
             b_q.push(next_state);
           }
         }
@@ -119,7 +125,8 @@ SolutionPath solve_puzzle(const string &start_state,
   vector<string> f_path_states;
   string curr = best_intersection;
   while (curr != start_state) {
-    f_path_moves.push_back(f_visited[curr].move_from_parent);
+    f_path_moves.push_back(
+        normalize_move_display(f_visited[curr].move_from_parent));
     f_path_states.push_back(curr);
     curr = f_visited[curr].parent;
   }
@@ -133,7 +140,7 @@ SolutionPath solve_puzzle(const string &start_state,
   while (curr != target_state) {
     string move_to_curr = b_visited[curr].move_from_parent;
     // Revert the action to move closer towards the Target State
-    string inv_move = get_inverse(move_to_curr);
+    string inv_move = normalize_move_display(get_inverse(move_to_curr));
 
     b_path_moves.push_back(inv_move);
     curr = b_visited[curr].parent;

@@ -84,12 +84,15 @@ int main() {
   auto available_moves = get_all_moves();
   uniform_int_distribution<int> move_dist(0, available_moves.size() - 1);
 
+  int actual_scramble_moves = 0;
   cout << "\nScramble Moves: ";
   for (int i = 0; i < scramble_depth; ++i) {
     string m = available_moves[move_dist(rng)];
-    cout << m << (i == scramble_depth - 1 ? "" : ", ");
+    cout << normalize_move_display(m) << (i == scramble_depth - 1 ? "" : ", ");
+    actual_scramble_moves += get_move_cost(m);
     start_state = apply_move(start_state, m);
   }
+  cout << "\n(Total scramble cost: " << actual_scramble_moves << " moves)";
 
   cout << "\n\nStart State (Scrambled Grid):\n";
   print_grid(start_state);
@@ -109,7 +112,12 @@ int main() {
     return 0;
   }
 
-  cout << "\nTotal Optimal Moves: " << result.moves.size() << "\n\n";
+  int total_moves = 0;
+  for (const string &m : result.moves) {
+    total_moves += get_move_cost(m);
+  }
+  cout << "\nTotal Optimal Moves: " << total_moves << " (across "
+       << result.moves.size() << " steps)\n\n";
 
   for (size_t i = 0; i < result.moves.size(); ++i) {
     cout << "Step " << i + 1 << ": Apply " << result.moves[i] << "\n";
